@@ -93,7 +93,7 @@ public final class AnimationUtils {
             Log.d(TAG, "animateView()" + msg);
         }
 
-        if (view.getVisibility() == View.VISIBLE && enterOrExit) {
+        if (view.getVisibility() == View.VISIBLE && enterOrExit && view.getAlpha() == 1f) {
             if (DEBUG) {
                 Log.d(TAG, "animateView() view was already visible > view = [" + view + "]");
             }
@@ -121,9 +121,16 @@ public final class AnimationUtils {
         view.animate().setListener(null).cancel();
         view.setVisibility(View.VISIBLE);
 
+        // By default the alpha value of views is 1f, independently of its default visibility
+        // (unless it was changed later). This adjustment makes sure that the duration of an, e.g.
+        // semi-transparent, view is not longer than it usually should be.
+        final long alphaRelativeDuration =
+            (long) (enterOrExit && view.getAlpha() < 1.0f ? duration * (1 - view.getAlpha())
+            : duration * view.getAlpha());
+
         switch (animationType) {
             case ALPHA:
-                animateAlpha(view, enterOrExit, duration, delay, execOnEnd);
+                animateAlpha(view, enterOrExit, alphaRelativeDuration, delay, execOnEnd);
                 break;
             case SCALE_AND_ALPHA:
                 animateScaleAndAlpha(view, enterOrExit, duration, delay, execOnEnd);

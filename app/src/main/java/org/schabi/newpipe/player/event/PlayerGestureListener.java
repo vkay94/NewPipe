@@ -55,12 +55,10 @@ public class PlayerGestureListener
             playerImpl.hideControls(0, 0);
         }
 
-        if (portion == DisplayPortion.LEFT) {
-            playerImpl.onFastRewind();
+        if (portion == DisplayPortion.LEFT || portion == DisplayPortion.RIGHT) {
+            startMultiDoubleTap(event);
         } else if (portion == DisplayPortion.MIDDLE) {
             playerImpl.onPlayPause();
-        } else if (portion == DisplayPortion.RIGHT) {
-            playerImpl.onFastForward();
         }
     }
 
@@ -258,6 +256,7 @@ public class PlayerGestureListener
         playerImpl.getLoadingPanel().setVisibility(View.GONE);
 
         playerImpl.hideControls(0, 0);
+        animateView(playerImpl.getSeekOverlay(), false, 0, 0);
         animateView(playerImpl.getCurrentDisplaySeek(), false, 0, 0);
         animateView(playerImpl.getResizingIndicator(), true, 200, 0);
     }

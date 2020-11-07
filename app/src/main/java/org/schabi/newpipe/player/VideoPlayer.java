@@ -33,9 +33,7 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Build;
 import android.os.Handler;
-import androidx.preference.PreferenceManager;
 import android.util.Log;
-
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,9 +43,11 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.SeekBar;
 import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.content.res.AppCompatResources;
+import androidx.preference.PreferenceManager;
 
 import com.google.android.exoplayer2.C;
 import com.google.android.exoplayer2.PlaybackParameters;
@@ -130,6 +130,7 @@ public abstract class VideoPlayer extends BasePlayer
     private TextView currentDisplaySeek;
     private View playerTopShadow;
     private View playerBottomShadow;
+    private View controlsRootShadow;
 
     private View bottomControlsRoot;
     private SeekBar playbackSeekBar;
@@ -194,6 +195,7 @@ public abstract class VideoPlayer extends BasePlayer
         this.currentDisplaySeek = view.findViewById(R.id.currentDisplaySeek);
         this.playerTopShadow = view.findViewById(R.id.playerTopShadow);
         this.playerBottomShadow = view.findViewById(R.id.playerBottomShadow);
+        this.controlsRootShadow = view.findViewById(R.id.playbackControlsShadow);
         this.playbackSeekBar = view.findViewById(R.id.playbackSeekBar);
         this.playbackCurrentTime = view.findViewById(R.id.playbackCurrentTime);
         this.playbackEndTime = view.findViewById(R.id.playbackEndTime);
@@ -458,6 +460,7 @@ public abstract class VideoPlayer extends BasePlayer
         super.onBlocked();
 
         controlsVisibilityHandler.removeCallbacksAndMessages(null);
+        animateView(controlsRootShadow, false, DEFAULT_CONTROLS_DURATION);
         animateView(controlsRoot, false, DEFAULT_CONTROLS_DURATION);
 
         playbackSeekBar.setEnabled(false);
@@ -668,17 +671,17 @@ public abstract class VideoPlayer extends BasePlayer
         changeState(STATE_BLOCKED);
     }
 
-    @Override
-    public void onFastRewind() {
-        super.onFastRewind();
-        showAndAnimateControl(R.drawable.ic_fast_rewind_white_24dp, true);
-    }
+//    @Override
+//    public void onFastRewind() {
+//        super.onFastRewind();
+//        showAndAnimateControl(R.drawable.ic_fast_rewind_white_24dp, true);
+//    }
 
-    @Override
-    public void onFastForward() {
-        super.onFastForward();
-        showAndAnimateControl(R.drawable.ic_fast_forward_white_24dp, true);
-    }
+//    @Override
+//    public void onFastForward() {
+//        super.onFastForward();
+//        showAndAnimateControl(R.drawable.ic_fast_forward_white_24dp, true);
+//    }
 
     /*//////////////////////////////////////////////////////////////////////////
     // OnClick related
@@ -880,6 +883,10 @@ public abstract class VideoPlayer extends BasePlayer
         return controlsRoot != null && controlsRoot.getVisibility() == View.VISIBLE;
     }
 
+    public boolean isControlsShadowVisible() {
+        return controlsRootShadow != null && controlsRootShadow.getVisibility() == View.VISIBLE;
+    }
+
     /**
      * Show a animation, and depending on goneOnEnd, will stay on the screen or be gone.
      *
@@ -979,8 +986,10 @@ public abstract class VideoPlayer extends BasePlayer
         }
         if (rootView.isInTouchMode()) {
             controlsVisibilityHandler.removeCallbacksAndMessages(null);
-            controlsVisibilityHandler.postDelayed(
-                    () -> animateView(controlsRoot, false, duration), delay);
+            controlsVisibilityHandler.postDelayed(() -> {
+                animateView(controlsRoot, false, duration);
+                animateView(controlsRootShadow, false, duration);
+                }, delay);
         }
     }
 
@@ -1008,10 +1017,17 @@ public abstract class VideoPlayer extends BasePlayer
         return () -> {
             videoPlayPause.setVisibility(View.INVISIBLE);
             animateView(controlsRoot, false, duration);
+            animateView(controlsRootShadow, false, duration);
         };
     }
 
     void showHideShadow(final boolean show, final long duration, final long delay) {
+        animateView(controlsRootShadow, show, duration, delay, null);
+        animateView(playerTopShadow, show, duration, delay, null);
+        animateView(playerBottomShadow, show, duration, delay, null);
+    }
+
+    void showHideTopBottomShadow(final boolean show, final long duration, final long delay) {
         animateView(playerTopShadow, show, duration, delay, null);
         animateView(playerBottomShadow, show, duration, delay, null);
     }
@@ -1072,6 +1088,10 @@ public abstract class VideoPlayer extends BasePlayer
 
     public View getControlsRoot() {
         return controlsRoot;
+    }
+
+    public View getControlsRootShadow() {
+        return controlsRootShadow;
     }
 
     public View getBottomControlsRoot() {

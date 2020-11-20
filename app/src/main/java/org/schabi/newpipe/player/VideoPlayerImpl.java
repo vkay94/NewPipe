@@ -460,70 +460,77 @@ public class VideoPlayerImpl extends VideoPlayer
         final int fadeDurations = 450;
 
         seekOverlay.showCircle(true)
-            .circleBackgroundColorInt(CircleClipTapView.COLOR_DARK_TRANSPARENT)
+            .circleBackgroundColorInt(CircleClipTapView.COLOR_DARK)
             .seekSeconds(seekDurationInMillis / 1000)
             .performListener(new PlayerSeekOverlay.PerformListener() {
 
-            final boolean keepShadow = true;
+                boolean keepShadow = false;
 
-            @Override
-            public void onPrepare() {
-                if (checkCorrectConditions()) {
-                    gestureListener.endMultiDoubleTap();
-                    return;
+                @Override
+                public void onPrepare() {
+                    if (checkCorrectConditions()) {
+                        gestureListener.endMultiDoubleTap();
+                        return;
+                    }
+
+                    keepShadow = !getPlayer().getPlayWhenReady() && isControlsVisible();
+                    seekOverlay
+                        .arcSize(CircleClipTapView.Companion.calculateArcSize(getSurfaceView()))
+                        .circleBackgroundColorInt(
+                            keepShadow ? CircleClipTapView.COLOR_DARK_TRANSPARENT
+                                : CircleClipTapView.COLOR_DARK
+                        );
                 }
-                seekOverlay.arcSize(CircleClipTapView.Companion.calculateArcSize(getSurfaceView()));
-            }
 
-            @Override
-            public void onAnimationStart() {
-                animateView(seekOverlay, true, fadeDurations);
-                hideControls(fadeDurations, 0, keepShadow);
-            }
-
-            @Override
-            public void onAnimationEnd() {
-                animateView(seekOverlay, false, fadeDurations);
-                if (!getPlayer().getPlayWhenReady()) {
-                    showControls(fadeDurations);
-                } else {
-                    showHideShadow(false, fadeDurations, 0);
+                @Override
+                public void onAnimationStart() {
+                    animateView(seekOverlay, true, fadeDurations);
+                    hideControls(fadeDurations, 0, keepShadow);
                 }
-            }
 
-            @Override
-            public Boolean shouldFastForward(@NotNull final DisplayPortion portion) {
-                // Null indicates an invalid area or condition e.g. the middle portion
-                // or video start or end was reached during double tap seeking
-                if (checkCorrectConditions()) {
-                    return null;
+                @Override
+                public void onAnimationEnd() {
+                    animateView(seekOverlay, false, fadeDurations);
+                    if (!getPlayer().getPlayWhenReady()) {
+                        showControls(fadeDurations);
+                    } else {
+                        showHideShadow(false, fadeDurations, 0);
+                    }
                 }
-                if (portion == DisplayPortion.LEFT) {
-                    return false;
-                } else if (portion == DisplayPortion.RIGHT) {
-                    return true;
-                } else /* portion == DisplayPortion.MIDDLE */ {
-                    return null;
-                }
-            }
 
-            @Override
-            public void seek(final boolean forward) {
-                gestureListener.keepInDoubleTapMode();
-                if (forward) {
-                    onFastForward();
-                } else {
-                    onFastRewind();
+                @Override
+                public Boolean shouldFastForward(@NotNull final DisplayPortion portion) {
+                    // Null indicates an invalid area or condition e.g. the middle portion
+                    // or video start or end was reached during double tap seeking
+                    if (checkCorrectConditions()) {
+                        return null;
+                    }
+                    if (portion == DisplayPortion.LEFT) {
+                        return false;
+                    } else if (portion == DisplayPortion.RIGHT) {
+                        return true;
+                    } else /* portion == DisplayPortion.MIDDLE */ {
+                        return null;
+                    }
                 }
-            }
 
-            private boolean checkCorrectConditions() {
-                return getPlayer().getCurrentPosition() == getPlayer().getDuration()
-                    // Add puffer of a half second, so that direct rewinding is not possible
-                    || getPlayer().getCurrentPosition() <= 500L
-                    || getPlayer().getPlaybackState() == Player.STATE_ENDED
-                    || getPlayer().getPlaybackState() == Player.STATE_IDLE;
-            }
+                @Override
+                public void seek(final boolean forward) {
+                    gestureListener.keepInDoubleTapMode();
+                    if (forward) {
+                        onFastForward();
+                    } else {
+                        onFastRewind();
+                    }
+                }
+
+                private boolean checkCorrectConditions() {
+                    return getPlayer().getCurrentPosition() == getPlayer().getDuration()
+                        // Add puffer of a half second, so that direct rewinding is not possible
+                        || getPlayer().getCurrentPosition() <= 500L
+                        || getPlayer().getPlaybackState() == Player.STATE_ENDED
+                        || getPlayer().getPlaybackState() == Player.STATE_IDLE;
+                }
         });
         gestureListener.doubleTapControls(seekOverlay);
     }

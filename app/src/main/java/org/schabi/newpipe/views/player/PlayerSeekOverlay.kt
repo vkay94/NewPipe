@@ -5,22 +5,28 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
-import androidx.annotation.*
+import androidx.annotation.ColorInt
+import androidx.annotation.ColorRes
+import androidx.annotation.DimenRes
+import androidx.annotation.DrawableRes
+import androidx.annotation.StyleRes
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.constraintlayout.widget.ConstraintSet.*
+import androidx.constraintlayout.widget.ConstraintSet.END
+import androidx.constraintlayout.widget.ConstraintSet.PARENT_ID
+import androidx.constraintlayout.widget.ConstraintSet.START
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import androidx.preference.PreferenceManager
-import kotlinx.android.synthetic.main.player_seek_overlay.view.*
 import org.schabi.newpipe.MainActivity
 import org.schabi.newpipe.R
 import org.schabi.newpipe.player.event.DisplayPortion
 import org.schabi.newpipe.player.event.DoubleTapListener
 
-class PlayerSeekOverlay(context: Context?, private val attrs: AttributeSet?) :
+class PlayerSeekOverlay(context: Context, attrs: AttributeSet?) :
     ConstraintLayout(context, attrs), DoubleTapListener {
 
+    private var rootLayout: ConstraintLayout
     private var secondsView: SecondsView
     private var circleClipTapView: CircleClipTapView
 
@@ -29,6 +35,7 @@ class PlayerSeekOverlay(context: Context?, private val attrs: AttributeSet?) :
     init {
         LayoutInflater.from(context).inflate(R.layout.player_seek_overlay, this, true)
 
+        rootLayout = findViewById(R.id.root_constraint_layout)
         secondsView = findViewById(R.id.seconds_view)
         circleClipTapView = findViewById(R.id.circle_clip_tap_view)
 
@@ -145,27 +152,31 @@ class PlayerSeekOverlay(context: Context?, private val attrs: AttributeSet?) :
         if (DEBUG)
             Log.d(TAG, "onDoubleTapStarted called with portion = [$portion]")
 
+        secondsView.apply {
+            isForward = portion == DisplayPortion.RIGHT
+            changeConstraints(portion == DisplayPortion.RIGHT)
+            if (this.alpha == 0f) secondsView.stop()
+        }
+
         initTap = false
         performListener?.onPrepare()
 
-        changeConstraints(secondsView.isForward)
         if (showCircle) circleClipTapView.updatePosition(portion)
-
         isForwarding = null
-
-        if (this.alpha == 0f)
-            secondsView.stop()
     }
 
     override fun onDoubleTapProgressDown(portion: DisplayPortion) {
         val shouldForward: Boolean = performListener?.shouldFastForward(portion) ?: return
 
         if (DEBUG)
-            Log.d(TAG,"onDoubleTapProgressDown called with " +
-                "shouldForward = [$shouldForward], " +
-                "isForwarding = [$isForwarding], " +
-                "secondsView#isForward = [${secondsView.isForward}], " +
-                "initTap = [$initTap], ")
+            Log.d(
+                TAG,
+                "onDoubleTapProgressDown called with " +
+                    "shouldForward = [$shouldForward], " +
+                    "isForwarding = [$isForwarding], " +
+                    "secondsView#isForward = [${secondsView.isForward}], " +
+                    "initTap = [$initTap]"
+            )
 
         // Using this check prevents from fast switching (one touches)
         if (isForwarding != null && isForwarding != shouldForward) {
@@ -234,18 +245,22 @@ class PlayerSeekOverlay(context: Context?, private val attrs: AttributeSet?) :
     private fun changeConstraints(forward: Boolean) {
         val constraintSet = ConstraintSet()
         with(constraintSet) {
-            clone(root_constraint_layout)
+            clone(rootLayout)
             if (forward) {
-                clear(seconds_view.id, START)
-                connect(seconds_view.id, END,
-                    PARENT_ID, END)
+                clear(secondsView.id, START)
+                connect(
+                    secondsView.id, END,
+                    PARENT_ID, END
+                )
             } else {
-                clear(seconds_view.id, END)
-                connect(seconds_view.id, START,
-                    PARENT_ID, START)
+                clear(secondsView.id, END)
+                connect(
+                    secondsView.id, START,
+                    PARENT_ID, START
+                )
             }
             secondsView.start()
-            applyTo(root_constraint_layout)
+            applyTo(rootLayout)
         }
     }
 

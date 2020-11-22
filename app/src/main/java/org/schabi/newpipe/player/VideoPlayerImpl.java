@@ -468,7 +468,8 @@ public class VideoPlayerImpl extends VideoPlayer
 
                 @Override
                 public void onPrepare() {
-                    if (checkCorrectConditions()) {
+                    if (getPlayer().getPlaybackState() == Player.STATE_IDLE
+                        || getPlayer().getPlaybackState() == Player.STATE_ENDED) {
                         gestureListener.endMultiDoubleTap();
                         return;
                     }
@@ -502,12 +503,9 @@ public class VideoPlayerImpl extends VideoPlayer
                 public Boolean shouldFastForward(@NotNull final DisplayPortion portion) {
                     // Null indicates an invalid area or condition e.g. the middle portion
                     // or video start or end was reached during double tap seeking
-                    if (checkCorrectConditions()) {
-                        return null;
-                    }
-                    if (portion == DisplayPortion.LEFT) {
+                    if (portion == DisplayPortion.LEFT && checkRewindCondition()) {
                         return false;
-                    } else if (portion == DisplayPortion.RIGHT) {
+                    } else if (portion == DisplayPortion.RIGHT && checkForwardCondition()) {
                         return true;
                     } else /* portion == DisplayPortion.MIDDLE */ {
                         return null;
@@ -524,12 +522,17 @@ public class VideoPlayerImpl extends VideoPlayer
                     }
                 }
 
-                private boolean checkCorrectConditions() {
-                    return getPlayer().getCurrentPosition() == getPlayer().getDuration()
-                        // Add puffer of a half second, so that direct rewinding is not possible
-                        || getPlayer().getCurrentPosition() <= 500L
-                        || getPlayer().getPlaybackState() == Player.STATE_ENDED
-                        || getPlayer().getPlaybackState() == Player.STATE_IDLE;
+                private boolean checkRewindCondition() {
+                    // Add puffer of a half second, so that direct rewinding is not possible
+                    return getPlayer().getCurrentPosition() > 500L
+                        && getPlayer().getPlaybackState() != Player.STATE_IDLE
+                        && getPlayer().getPlaybackState() != Player.STATE_ENDED;
+                }
+
+                private boolean checkForwardCondition() {
+                    return getPlayer().getCurrentPosition() < getPlayer().getDuration()
+                        && getPlayer().getPlaybackState() != Player.STATE_IDLE
+                        && getPlayer().getPlaybackState() != Player.STATE_ENDED;
                 }
         });
         gestureListener.doubleTapControls(seekOverlay);

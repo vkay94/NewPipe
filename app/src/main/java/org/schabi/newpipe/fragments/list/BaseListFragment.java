@@ -34,7 +34,7 @@ import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.OnClickGesture;
 import org.schabi.newpipe.util.StateSaver;
-import org.schabi.newpipe.util.StreamDialogEntry;
+import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 import org.schabi.newpipe.views.SuperScrollLayoutManager;
 
 import java.util.ArrayList;

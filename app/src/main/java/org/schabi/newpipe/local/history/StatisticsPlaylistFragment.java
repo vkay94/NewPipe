@@ -28,7 +28,6 @@ import org.schabi.newpipe.database.stream.StreamStatisticsEntry;
 import org.schabi.newpipe.database.stream.model.StreamEntity;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamType;
-import org.schabi.newpipe.info_list.InfoItemDialog;
 import org.schabi.newpipe.local.BaseLocalListFragment;
 import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
@@ -39,8 +38,9 @@ import org.schabi.newpipe.report.UserAction;
 import org.schabi.newpipe.settings.SettingsActivity;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.OnClickGesture;
-import org.schabi.newpipe.util.StreamDialogEntry;
 import org.schabi.newpipe.util.ThemeHelper;
+import org.schabi.newpipe.util.stream_dialog.StreamDialog;
+import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -421,8 +421,24 @@ public class StatisticsPlaylistFragment
         StreamDialogEntry.delete.setCustomAction((fragment, infoItemDuplicate) ->
                 deleteEntry(Math.max(itemListAdapter.getItemsList().indexOf(item), 0)));
 
-        new InfoItemDialog(activity, infoItem, StreamDialogEntry.getCommands(context),
-                (dialog, which) -> StreamDialogEntry.clickOn(which, this, infoItem)).show();
+
+        // TODO
+
+        final StreamDialog dialog = new StreamDialog(
+                infoItem, activity, entries, infoItem.getName(), infoItem.getUploaderName()
+        );
+        dialog.show(getChildFragmentManager(), "DIALOG");
+
+        /*
+        private val infoItem: StreamInfoItem,
+        private val activity: Activity,
+        private val actions: List<StreamDialogEntry>,
+        private val title: String,
+        private val additionalDetail: String? = null
+         */
+
+//        new InfoItemDialog(activity, infoItem, StreamDialogEntry.getCommands(context),
+//                (dialog, which) -> StreamDialogEntry.clickOn(which, this, infoItem)).show();
     }
 
     private void deleteEntry(final int index) {

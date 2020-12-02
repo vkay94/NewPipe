@@ -1,4 +1,4 @@
-package org.schabi.newpipe.util;
+package org.schabi.newpipe.util.stream_dialog;
 
 import android.content.Context;
 
@@ -11,7 +11,10 @@ import org.schabi.newpipe.local.dialog.PlaylistCreationDialog;
 import org.schabi.newpipe.player.MainPlayer;
 import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.player.playqueue.SinglePlayQueue;
+import org.schabi.newpipe.util.NavigationHelper;
+import org.schabi.newpipe.util.ShareUtils;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -71,7 +74,9 @@ public enum StreamDialogEntry {
     }),
 
     share(R.string.share, (fragment, item) ->
-            ShareUtils.shareUrl(fragment.getContext(), item.getName(), item.getUrl()));
+            ShareUtils.shareUrl(fragment.getContext(), item.getName(), item.getUrl())),
+
+    subEntry(R.string.tracks, new ArrayList<>());
 
 
     ///////////////
@@ -79,9 +84,11 @@ public enum StreamDialogEntry {
     ///////////////
 
     private static StreamDialogEntry[] enabledEntries;
-    private final int resource;
+    private int resource;
     private final StreamDialogEntryAction defaultAction;
     private StreamDialogEntryAction customAction;
+
+    private List<StreamDialogEntry> subEntries = Collections.emptyList();
 
     StreamDialogEntry(final int resource, final StreamDialogEntryAction defaultAction) {
         this.resource = resource;
@@ -89,6 +96,33 @@ public enum StreamDialogEntry {
         this.customAction = null;
     }
 
+    // Pass it as is
+    StreamDialogEntry(final int resource, final ArrayList<StreamDialogEntry> subEntries) {
+        this.resource = resource;
+        this.subEntries = subEntries;
+        this.defaultAction = null;
+        this.customAction = null;
+    }
+
+    public int getResource() {
+        return resource;
+    }
+
+    public void setResource(final int resource) {
+        this.resource = resource;
+    }
+
+    public void setSubEntries(final List<StreamDialogEntry> entries) {
+        this.subEntries = entries;
+    }
+
+    public List<StreamDialogEntry> getSubEntries() {
+        return subEntries;
+    }
+
+    public boolean hasSubEntries() {
+        return subEntries.size() > 0;
+    }
 
     ///////////////////////////////////////////////////////
     // non-static methods to initialize and edit entries //

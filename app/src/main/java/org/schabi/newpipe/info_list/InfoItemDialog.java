@@ -15,6 +15,7 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 public class InfoItemDialog {
     private final AlertDialog dialog;
 
+    // TODO:
     public InfoItemDialog(@NonNull final Activity activity,
                           @NonNull final StreamInfoItem info,
                           @NonNull final String[] commands,

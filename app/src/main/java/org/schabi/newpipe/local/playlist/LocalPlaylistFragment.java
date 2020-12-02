@@ -44,7 +44,7 @@ import org.schabi.newpipe.report.UserAction;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.OnClickGesture;
-import org.schabi.newpipe.util.StreamDialogEntry;
+import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;

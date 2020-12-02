@@ -1,11 +1,12 @@
 package org.schabi.newpipe.util.stream_dialog
 
 import android.app.Activity
+import android.content.Context
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.DialogFragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -24,11 +25,14 @@ class StreamDialog(
     private val additionalDetail: String? = null
 ) : DialogFragment() {
 
-    private lateinit var dialog: AlertDialog
-    private lateinit var itemsList: RecyclerView
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
-
     private lateinit var commands: Array<String>
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        setStyle(STYLE_NO_TITLE, getThemeResId(requireContext()))
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         return inflater.inflate(R.layout.menu_stream_dialog, container)
@@ -55,6 +59,7 @@ class StreamDialog(
         }
 
         items_list.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
+        items_list.overScrollMode = View.OVER_SCROLL_NEVER
         items_list.adapter = groupAdapter
 
         val entry = StreamDialogEntry.subEntry.apply {
@@ -84,5 +89,16 @@ class StreamDialog(
     private val onItemClickListener: (action: StreamDialogEntry) -> Unit = { action ->
         StreamDialogEntry.clickOn(action.ordinal, this, infoItem)
         dismiss()
+    }
+
+    private fun getThemeResId(context: Context, themeId: Int = 0): Int {
+        var themeIdX = themeId
+        if (themeId == 0) {
+            // If the provided theme is 0, then retrieve the dialogTheme from our theme
+            val outValue = TypedValue()
+            context.theme.resolveAttribute(android.R.attr.alertDialogTheme, outValue, true)
+            themeIdX = outValue.resourceId
+        }
+        return themeIdX
     }
 }

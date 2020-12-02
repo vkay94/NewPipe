@@ -7,20 +7,20 @@
     android:background="?attr/selectableItemBackground"
     android:paddingStart="0dp"
     android:paddingTop="12dp"
-    android:paddingEnd="16dp"
+    android:paddingEnd="24dp"
     android:paddingBottom="12dp">
 
     <TextView
-        android:textSize="16sp"
-        android:textColor="@android:color/white"
+        android:textAppearance="?android:attr/textAppearanceLarge"
         android:id="@+id/title"
         android:layout_width="0dp"
+        android:textSize="@dimen/channel_item_detail_title_text_size"
         android:layout_height="wrap_content"
-        android:layout_marginStart="16dp"
+        android:layout_marginStart="24dp"
         app:layout_constraintEnd_toStartOf="@id/arrow"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:text="Delete" />
+        tools:text="Delete" />
 
     <ImageView
         android:id="@+id/arrow"
@@ -32,7 +32,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@id/title"
         app:layout_constraintTop_toTopOf="@id/title"
-        app:srcCompat="@drawable/ic_arrow_right_white_24dp"
+        app:srcCompat="?attr/ic_arrow_right"
         tools:visibility="visible"
         tools:ignore="ContentDescription" />
 

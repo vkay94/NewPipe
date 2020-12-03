@@ -74,6 +74,27 @@ public enum StreamDialogEntry {
     share(R.string.share, (fragment, item) ->
             ShareUtils.shareUrl(fragment.getContext(), item.getName(), item.getUrl())),
 
+    // TODO: Above start from here: single stream
+
+    // TODO: Start from here in background (append queue to existing)
+    // TODO: Start from here in popup (append queue to existing)
+    // TODO: Enqueue from here (append queue to existing)
+
+    start_here_on_background_queue(R.string.start_here_on_background_queue, (fragment, item) ->
+            NavigationHelper.playOnBackgroundPlayer(fragment.getContext(),
+                    new SinglePlayQueue(item), true)),
+
+    start_here_on_popup_queue(R.string.start_here_on_popup_queue, (fragment, item) ->
+            NavigationHelper.playOnPopupPlayer(fragment.getContext(),
+                    new SinglePlayQueue(item), true)),
+
+    // TODO: Creates Queue if not exist, otherwise append
+    append_from_here(R.string.append_from_here, (fragment, item) ->
+            NavigationHelper.playOnBackgroundPlayer(fragment.getContext(),
+                    new SinglePlayQueue(item), true)),
+
+
+
     /**
      * <p>
      *     Represents a group of actions.
@@ -82,7 +103,9 @@ public enum StreamDialogEntry {
      * You'll have to set the values (resource and actions list) after instantiating this entry
      * because enums in Java don't allow constructor instantiating.
      */
-    group(-1, new ArrayList<>());
+    group(-1, new ArrayList<>()),
+
+    custom(-1, (fragment, item) -> { /*no-op*/ });
 
     ///////////////
     // variables //

@@ -685,4 +685,8 @@
     <string name="playlist_page_summary">Playlist page</string>
     <string name="show_thumbnail_title">Show thumbnail</string>
     <string name="show_thumbnail_summary">Show thumbnail on lock screen as background and inside notifications</string>
+    <string name="append_from_here">Append items from here</string>
+    <string name="start_here_on_background_queue">Start queue in background</string>
+    <string name="start_here_on_popup_queue">Start queue in popup</string>
+    <string name="queue_options">Queue options</string>
 </resources>

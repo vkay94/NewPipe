@@ -41,7 +41,6 @@ import org.schabi.newpipe.util.OnClickGesture;
 import org.schabi.newpipe.util.ThemeHelper;
 import org.schabi.newpipe.util.stream_dialog.StreamDialog;
 import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
-import org.schabi.newpipe.util.stream_dialog.StreamDialogEntryObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -386,7 +385,6 @@ public class StatisticsPlaylistFragment
     }
 
     private void showStreamDialog(final StreamStatisticsEntry item) {
-        StreamDialogEntryObject.INSTANCE.clear();
 
         final Context context = getContext();
         final Activity activity = getActivity();
@@ -424,12 +422,11 @@ public class StatisticsPlaylistFragment
                 deleteEntry(Math.max(itemListAdapter.getItemsList().indexOf(item), 0)));
 
         final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
-                .setTitle(infoItem.getName())
-                .setDetails(infoItem.getUploaderName())
-                .addActions(entries)
-                .addGroup(R.string.trending,
-                        StreamDialogEntry.delete, StreamDialogEntry.append_playlist)
-                .addAction(StreamDialogEntry.delete);
+                .addGroup(R.string.queue_options,
+                        StreamDialogEntry.append_from_here,
+                        StreamDialogEntry.start_here_on_background_queue,
+                        StreamDialogEntry.start_here_on_popup_queue)
+                .addActions(entries);
 
         dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
     }

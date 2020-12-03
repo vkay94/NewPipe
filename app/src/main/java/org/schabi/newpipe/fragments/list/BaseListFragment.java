@@ -10,6 +10,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBar;
@@ -359,10 +360,16 @@ public abstract class BaseListFragment<I, N> extends BaseStateFragment<I>
                     StreamDialogEntry.share
             ));
         }
-//        StreamDialogEntry.setEnabledEntries(entries);
+
+        final StreamDialogEntry action = StreamDialogEntry.custom;
+        action.setResource(R.string.subscribe_button_title);
+        action.setCustomAction((fragment, infoItem) -> {
+            Toast.makeText(context, "Hello", Toast.LENGTH_SHORT).show();
+        });
 
         final StreamDialog dialog = new StreamDialog.Builder(item)
                 .setActions(entries)
+                .addGroup(R.string.title_activity_about, action)
                 .build();
 
         dialog.show(getChildFragmentManager(), "DIALOG");

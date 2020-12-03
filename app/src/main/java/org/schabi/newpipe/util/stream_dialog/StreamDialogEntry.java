@@ -1,5 +1,7 @@
 package org.schabi.newpipe.util.stream_dialog;
 
+import android.widget.Toast;
+
 import androidx.fragment.app.Fragment;
 
 import org.schabi.newpipe.R;
@@ -80,18 +82,31 @@ public enum StreamDialogEntry {
     // TODO: Start from here in popup (append queue to existing)
     // TODO: Enqueue from here (append queue to existing)
 
-    start_here_on_background_queue(R.string.start_here_on_background_queue, (fragment, item) ->
+    // Clear queue and add queue with position in background
+    load_queue_from_here_background(R.string.load_queue_from_here_background, (fragment, item) ->
             NavigationHelper.playOnBackgroundPlayer(fragment.getContext(),
                     new SinglePlayQueue(item), true)),
 
-    start_here_on_popup_queue(R.string.start_here_on_popup_queue, (fragment, item) ->
+    // Clear queue and add queue with position in background
+    load_queue_from_here_popup(R.string.load_queue_from_here_popup, (fragment, item) ->
             NavigationHelper.playOnPopupPlayer(fragment.getContext(),
                     new SinglePlayQueue(item), true)),
 
     // TODO: Creates Queue if not exist, otherwise append
-    append_from_here(R.string.append_from_here, (fragment, item) ->
-            NavigationHelper.playOnBackgroundPlayer(fragment.getContext(),
-                    new SinglePlayQueue(item), true)),
+    // Append queue from position
+    append_from_here_in_background(R.string.append_from_here_in_background, (fragment, item) ->
+            // TODO
+            Toast.makeText(fragment.getContext(), "Append from here", Toast.LENGTH_SHORT)
+                    .show()
+    ),
+
+    append_from_here_in_popup(R.string.append_from_here_in_popup, (fragment, item) ->
+            // TODO
+            Toast.makeText(fragment.getContext(), "Append from here", Toast.LENGTH_SHORT)
+                    .show()
+    ),
+//            NavigationHelper.playOnBackgroundPlayer(fragment.getContext(),
+//                    new SinglePlayQueue(item), true)),
 
 
 

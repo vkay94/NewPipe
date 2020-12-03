@@ -750,6 +750,10 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         return getPlayQueue(Math.max(itemListAdapter.getItemsList().indexOf(infoItem), 0));
     }
 
+    private PlayQueue getSubPlayQueueStartingAt(final PlaylistStreamEntry infoItem) {
+        return getSubPlayQueue(Math.max(itemListAdapter.getItemsList().indexOf(infoItem), 0));
+    }
+
     protected void showStreamItemDialog(final PlaylistStreamEntry item) {
         final Context context = getContext();
         final Activity activity = getActivity();
@@ -781,19 +785,43 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                     StreamDialogEntry.share
             ));
         }
-//        StreamDialogEntry.setEnabledEntries(entries);
 
-        StreamDialogEntry.start_here_on_background.setCustomAction((fragment, infoItemDuplicate) ->
-                NavigationHelper.playOnBackgroundPlayer(context,
-                        getPlayQueueStartingAt(item), true));
-        StreamDialogEntry.set_as_playlist_thumbnail.setCustomAction(
-                (fragment, infoItemDuplicate) ->
-                        changeThumbnailUrl(item.getStreamEntity().getThumbnailUrl()));
         StreamDialogEntry.delete.setCustomAction((fragment, infoItemDuplicate) ->
                 deleteItem(item));
 
+        StreamDialogEntry.load_queue_from_here_background
+                .setCustomAction((fragment, infoItemDuplicate) ->
+                        NavigationHelper
+                                .playOnBackgroundPlayer(context, getPlayQueueStartingAt(item),
+                                        true));
+
+        StreamDialogEntry.load_queue_from_here_popup
+                .setCustomAction((fragment, infoItemDuplicate) ->
+                        NavigationHelper
+                                .playOnPopupPlayer(context, getPlayQueueStartingAt(item),
+                                        true));
+
+        StreamDialogEntry.append_from_here_in_background.setCustomAction(
+                (fragment, infoItemDuplicate) -> {
+                    NavigationHelper
+                            .enqueueOnBackgroundPlayer(context, getSubPlayQueueStartingAt(item),
+                                    true);
+                });
+
+        StreamDialogEntry.append_from_here_in_popup.setCustomAction(
+                (fragment, infoItemDuplicate) -> {
+                    NavigationHelper
+                            .enqueueOnPopupPlayer(context, getSubPlayQueueStartingAt(item),
+                                    true);
+                });
+
         final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
-                .setActions(entries);
+                .addGroup(R.string.queue_options,
+                        StreamDialogEntry.append_from_here_in_background,
+                        StreamDialogEntry.append_from_here_in_popup,
+                        StreamDialogEntry.load_queue_from_here_background,
+                        StreamDialogEntry.load_queue_from_here_popup)
+                .addActions(entries);
 
         dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
     }
@@ -825,7 +853,24 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                 streamInfoItems.add(((PlaylistStreamEntry) item).toStreamInfoItem());
             }
         }
+        // TODO
         return new SinglePlayQueue(streamInfoItems, index);
+    }
+
+    private PlayQueue getSubPlayQueue(final int startIndex) {
+        if (itemListAdapter == null) {
+            return new SinglePlayQueue(Collections.emptyList(), 0);
+        }
+
+        final List<LocalItem> infoItems = itemListAdapter.getItemsList()
+                .subList(startIndex, itemListAdapter.getItemsList().size());
+        final List<StreamInfoItem> streamInfoItems = new ArrayList<>(infoItems.size());
+        for (final LocalItem item : infoItems) {
+            if (item instanceof PlaylistStreamEntry) {
+                streamInfoItems.add(((PlaylistStreamEntry) item).toStreamInfoItem());
+            }
+        }
+        return new SinglePlayQueue(streamInfoItems, 0);
     }
 }
 

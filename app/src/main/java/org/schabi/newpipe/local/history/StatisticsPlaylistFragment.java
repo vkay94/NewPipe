@@ -384,6 +384,10 @@ public class StatisticsPlaylistFragment
         return getPlayQueue(Math.max(itemListAdapter.getItemsList().indexOf(infoItem), 0));
     }
 
+    private PlayQueue getSubPlayQueueStartingAt(final StreamStatisticsEntry infoItem) {
+        return getSubPlayQueue(Math.max(itemListAdapter.getItemsList().indexOf(infoItem), 0));
+    }
+
     private void showStreamDialog(final StreamStatisticsEntry item) {
 
         final Context context = getContext();
@@ -415,17 +419,34 @@ public class StatisticsPlaylistFragment
             ));
         }
 
-        StreamDialogEntry.start_here_on_background.setCustomAction((fragment, infoItemDuplicate) ->
-                NavigationHelper
-                        .playOnBackgroundPlayer(context, getPlayQueueStartingAt(item), true));
         StreamDialogEntry.delete.setCustomAction((fragment, infoItemDuplicate) ->
                 deleteEntry(Math.max(itemListAdapter.getItemsList().indexOf(item), 0)));
 
+        StreamDialogEntry.load_queue_from_here_background
+                .setCustomAction((fragment, infoItemDuplicate) ->
+                        NavigationHelper
+                                .playOnBackgroundPlayer(context, getPlayQueueStartingAt(item),
+                                        true));
+
+        StreamDialogEntry.load_queue_from_here_popup
+                .setCustomAction((fragment, infoItemDuplicate) ->
+                    NavigationHelper
+                            .playOnPopupPlayer(context, getPlayQueueStartingAt(item),
+                                    true));
+
+        StreamDialogEntry.append_from_here_in_background.setCustomAction(
+                (fragment, infoItemDuplicate) -> {
+                    NavigationHelper
+                            .enqueueOnBackgroundPlayer(context, getSubPlayQueueStartingAt(item),
+                                    true);
+                });
+
         final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
                 .addGroup(R.string.queue_options,
-                        StreamDialogEntry.append_from_here,
-                        StreamDialogEntry.start_here_on_background_queue,
-                        StreamDialogEntry.start_here_on_popup_queue)
+                        StreamDialogEntry.append_from_here_in_background,
+                        StreamDialogEntry.append_from_here_in_popup,
+                        StreamDialogEntry.load_queue_from_here_background,
+                        StreamDialogEntry.load_queue_from_here_popup)
                 .addActions(entries);
 
         dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
@@ -457,6 +478,8 @@ public class StatisticsPlaylistFragment
         }
     }
 
+    // TODO
+
     private PlayQueue getPlayQueue() {
         return getPlayQueue(0);
     }
@@ -474,6 +497,22 @@ public class StatisticsPlaylistFragment
             }
         }
         return new SinglePlayQueue(streamInfoItems, index);
+    }
+
+    private PlayQueue getSubPlayQueue(final int startIndex) {
+        if (itemListAdapter == null) {
+            return new SinglePlayQueue(Collections.emptyList(), 0);
+        }
+
+        final List<LocalItem> infoItems = itemListAdapter.getItemsList()
+                .subList(startIndex, itemListAdapter.getItemsList().size());
+        final List<StreamInfoItem> streamInfoItems = new ArrayList<>(infoItems.size());
+        for (final LocalItem item : infoItems) {
+            if (item instanceof StreamStatisticsEntry) {
+                streamInfoItems.add(((StreamStatisticsEntry) item).toStreamInfoItem());
+            }
+        }
+        return new SinglePlayQueue(streamInfoItems, 0);
     }
 
     private enum StatisticSortMode {

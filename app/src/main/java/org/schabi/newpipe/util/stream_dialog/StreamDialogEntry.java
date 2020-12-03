@@ -76,8 +76,7 @@ public enum StreamDialogEntry {
     share(R.string.share, (fragment, item) ->
             ShareUtils.shareUrl(fragment.getContext(), item.getName(), item.getUrl())),
 
-    subEntry(R.string.tracks, new ArrayList<>());
-
+    groupEntry(R.string.tracks, new ArrayList<>());
 
     ///////////////
     // variables //
@@ -122,6 +121,14 @@ public enum StreamDialogEntry {
 
     public boolean hasSubEntries() {
         return subEntries.size() > 0;
+    }
+
+    public StreamDialogEntryAction getAction() {
+        if (customAction != null) {
+            return customAction;
+        } else  {
+            return defaultAction;
+        }
     }
 
     ///////////////////////////////////////////////////////

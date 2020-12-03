@@ -1,6 +1,5 @@
 package org.schabi.newpipe.util.stream_dialog
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.util.TypedValue
@@ -17,21 +16,28 @@ import kotlinx.android.synthetic.main.menu_stream_dialog.*
 import org.schabi.newpipe.R
 import org.schabi.newpipe.extractor.stream.StreamInfoItem
 
-class StreamDialog(
-    private val infoItem: StreamInfoItem,
-    private val activity: Activity,
-    private val actions: List<StreamDialogEntry>,
-    private val title: String,
-    private val additionalDetail: String? = null
-) : DialogFragment() {
+class StreamDialog : DialogFragment() {
+
+    var infoItem: StreamInfoItem? = null
+    var title: String = "EMPTY"
+    var additionalDetail: String? = null
+    var actions: List<StreamDialogEntry>? = null
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
     private lateinit var commands: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // Do not inflate dialog on config changes (for example rotation). Simply dismiss it
+        // like AlertDialog does
+        savedInstanceState?.let { dismiss() }
 
         setStyle(STYLE_NO_TITLE, getThemeResId(requireContext()))
+
+//        infoItem = StreamDialogEntryObject.infoItem
+//        actions = StreamDialogEntryObject.actions
+//        title = StreamDialogEntryObject.title
+//        additionalDetail = StreamDialogEntryObject.additionalDetail
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -59,22 +65,9 @@ class StreamDialog(
         }
 
         items_list.layoutManager = LinearLayoutManager(activity, RecyclerView.VERTICAL, false)
-        items_list.overScrollMode = View.OVER_SCROLL_NEVER
         items_list.adapter = groupAdapter
 
-        val entry = StreamDialogEntry.subEntry.apply {
-            resource = R.string.tracks
-            subEntries = listOf(StreamDialogEntry.delete, StreamDialogEntry.share)
-        }
-
-        groupAdapter.add(
-            DialogStreamEntryItem(
-                entry,
-                onItemClickListener,
-                onArrowClickListener
-            )
-        )
-        setupLayoutWithActions(actions)
+        actions?.let { setupLayoutWithActions(it) }
     }
 
     private fun setupLayoutWithActions(entries: List<StreamDialogEntry>) {
@@ -87,7 +80,8 @@ class StreamDialog(
     }
 
     private val onItemClickListener: (action: StreamDialogEntry) -> Unit = { action ->
-        StreamDialogEntry.clickOn(action.ordinal, this, infoItem)
+        // Pass the parent fragment instead of this dialog due to dismiss()
+        action.action.onClick(parentFragment, infoItem)
         dismiss()
     }
 
@@ -100,5 +94,37 @@ class StreamDialog(
             themeIdX = outValue.resourceId
         }
         return themeIdX
+    }
+
+    class Builder(val streamItem: StreamInfoItem) {
+        private var mTitle = "STREAM_TITLE"
+        private var mDetails: String? = null
+        private val mActions: ArrayList<StreamDialogEntry> = arrayListOf()
+
+        fun setTitle(title: String) = apply { this.mTitle = title }
+        fun setDetails(details: String) = apply { this.mDetails = details }
+
+        fun addAction(action: StreamDialogEntry) = apply { mActions.add(action) }
+        fun addGroup(resId: Int, actions: List<StreamDialogEntry>) = apply {
+            this.mActions.add(
+                StreamDialogEntry.groupEntry.apply {
+                    resource = resId
+                    subEntries = actions
+                }
+            )
+        }
+        fun setActions(actions: List<StreamDialogEntry>) = apply {
+            this.mActions.clear()
+            this.mActions.addAll(actions)
+        }
+
+        fun build(): StreamDialog {
+            return StreamDialog().apply {
+                infoItem = streamItem
+                title = mTitle
+                additionalDetail = mDetails
+                actions = mActions
+            }
+        }
     }
 }

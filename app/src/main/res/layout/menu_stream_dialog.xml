@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -8,19 +7,16 @@
 
     <include
         android:id="@+id/title_layout"
-        layout="@layout/dialog_title"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        layout="@layout/dialog_title" />
 
     <androidx.recyclerview.widget.RecyclerView
-        android:paddingTop="8dp"
         android:id="@+id/items_list"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_below="@id/title_layout"
+        android:overScrollMode="never"
+        android:paddingTop="8dp"
         android:visibility="visible"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_layout"
         tools:listitem="@layout/menu_item_title_arrow" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+</RelativeLayout>

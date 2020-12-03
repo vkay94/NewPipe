@@ -41,6 +41,7 @@ import org.schabi.newpipe.util.OnClickGesture;
 import org.schabi.newpipe.util.ThemeHelper;
 import org.schabi.newpipe.util.stream_dialog.StreamDialog;
 import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
+import org.schabi.newpipe.util.stream_dialog.StreamDialogEntryObject;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -385,6 +386,8 @@ public class StatisticsPlaylistFragment
     }
 
     private void showStreamDialog(final StreamStatisticsEntry item) {
+        StreamDialogEntryObject.INSTANCE.clear();
+
         final Context context = getContext();
         final Activity activity = getActivity();
         if (context == null || context.getResources() == null || activity == null) {
@@ -424,10 +427,18 @@ public class StatisticsPlaylistFragment
 
         // TODO
 
-        final StreamDialog dialog = new StreamDialog(
-                infoItem, activity, entries, infoItem.getName(), infoItem.getUploaderName()
-        );
-        dialog.show(getChildFragmentManager(), "DIALOG");
+        final ArrayList<StreamDialogEntry> group = new ArrayList<>();
+        group.add(StreamDialogEntry.delete);
+        group.add(StreamDialogEntry.append_playlist);
+
+        final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
+                .setTitle(infoItem.getName())
+                .setDetails(infoItem.getUploaderName())
+                .setActions(entries)
+                .addGroup(R.string.trending, group)
+                .addAction(StreamDialogEntry.delete);
+
+        dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
 
         /*
         private val infoItem: StreamInfoItem,

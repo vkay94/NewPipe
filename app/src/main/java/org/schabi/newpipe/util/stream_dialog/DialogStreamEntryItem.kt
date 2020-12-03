@@ -1,6 +1,5 @@
 package org.schabi.newpipe.util.stream_dialog
 
-import android.util.Log
 import android.view.View
 import com.xwray.groupie.kotlinandroidextensions.GroupieViewHolder
 import com.xwray.groupie.kotlinandroidextensions.Item
@@ -17,12 +16,10 @@ class DialogStreamEntryItem(
 ) : Item() {
 
     override fun bind(viewHolder: GroupieViewHolder, position: Int) {
-        Log.d("ABCDE", "DialogStreamEntryItem: bind position = [$position]")
-
         with(viewHolder.root) {
             if (entry.hasSubEntries()) {
                 arrow.visibility = View.VISIBLE
-                setOnClickListener { onArrowClick.invoke(entry.subEntries) }
+                setOnClickListener { onArrowClick.invoke(entry.subActions) }
             } else {
                 setOnClickListener { onClickAction.invoke(entry) }
             }

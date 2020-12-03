@@ -34,7 +34,6 @@ import org.schabi.newpipe.database.stream.model.StreamEntity;
 import org.schabi.newpipe.database.stream.model.StreamStateEntity;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamType;
-import org.schabi.newpipe.info_list.InfoItemDialog;
 import org.schabi.newpipe.local.BaseLocalListFragment;
 import org.schabi.newpipe.local.history.HistoryRecordManager;
 import org.schabi.newpipe.player.helper.PlayerHolder;
@@ -44,6 +43,7 @@ import org.schabi.newpipe.report.UserAction;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.OnClickGesture;
+import org.schabi.newpipe.util.stream_dialog.StreamDialog;
 import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 
 import java.util.ArrayList;
@@ -55,8 +55,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import icepick.State;
-import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.android.schedulers.AndroidSchedulers;
+import io.reactivex.rxjava3.core.Flowable;
 import io.reactivex.rxjava3.disposables.CompositeDisposable;
 import io.reactivex.rxjava3.disposables.Disposable;
 import io.reactivex.rxjava3.schedulers.Schedulers;
@@ -781,7 +781,7 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
                     StreamDialogEntry.share
             ));
         }
-        StreamDialogEntry.setEnabledEntries(entries);
+//        StreamDialogEntry.setEnabledEntries(entries);
 
         StreamDialogEntry.start_here_on_background.setCustomAction((fragment, infoItemDuplicate) ->
                 NavigationHelper.playOnBackgroundPlayer(context,
@@ -792,8 +792,10 @@ public class LocalPlaylistFragment extends BaseLocalListFragment<List<PlaylistSt
         StreamDialogEntry.delete.setCustomAction((fragment, infoItemDuplicate) ->
                 deleteItem(item));
 
-        new InfoItemDialog(activity, infoItem, StreamDialogEntry.getCommands(context),
-                (dialog, which) -> StreamDialogEntry.clickOn(which, this, infoItem)).show();
+        final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
+                .setActions(entries);
+
+        dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
     }
 
     private void setInitialData(final long pid, final String title) {

@@ -24,7 +24,6 @@ class StreamDialog : DialogFragment() {
     var actions: List<StreamDialogEntry>? = null
 
     private val groupAdapter = GroupAdapter<GroupieViewHolder>()
-    private lateinit var commands: Array<String>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,11 +32,6 @@ class StreamDialog : DialogFragment() {
         savedInstanceState?.let { dismiss() }
 
         setStyle(STYLE_NO_TITLE, getThemeResId(requireContext()))
-
-//        infoItem = StreamDialogEntryObject.infoItem
-//        actions = StreamDialogEntryObject.actions
-//        title = StreamDialogEntryObject.title
-//        additionalDetail = StreamDialogEntryObject.additionalDetail
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -46,8 +40,6 @@ class StreamDialog : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-
-        commands = StreamDialogEntry.getCommands(activity)
 
         itemTitleView.text = title
         itemTitleView.isSelected = true
@@ -96,23 +88,41 @@ class StreamDialog : DialogFragment() {
         return themeIdX
     }
 
-    class Builder(val streamItem: StreamInfoItem) {
-        private var mTitle = "STREAM_TITLE"
+    class Builder(private val streamItem: StreamInfoItem) {
+        private var mTitle: String? = null
         private var mDetails: String? = null
         private val mActions: ArrayList<StreamDialogEntry> = arrayListOf()
 
         fun setTitle(title: String) = apply { this.mTitle = title }
+
         fun setDetails(details: String) = apply { this.mDetails = details }
 
         fun addAction(action: StreamDialogEntry) = apply { mActions.add(action) }
+
+        fun addActions(list: List<StreamDialogEntry>) = apply {
+            list.forEach { addAction(it) }
+        }
+
+        fun addActions(vararg entries: StreamDialogEntry) = apply {
+            entries.forEach { addAction(it) }
+        }
+
         fun addGroup(resId: Int, actions: List<StreamDialogEntry>) = apply {
             this.mActions.add(
-                StreamDialogEntry.groupEntry.apply {
+                StreamDialogEntry.group.apply {
                     resource = resId
-                    subEntries = actions
+                    subActions = actions
                 }
             )
         }
+
+        fun addGroup(resId: Int, vararg actions: StreamDialogEntry) = apply {
+            val list = arrayListOf<StreamDialogEntry>().apply {
+                actions.forEach { add(it) }
+            }
+            addGroup(resId, list)
+        }
+
         fun setActions(actions: List<StreamDialogEntry>) = apply {
             this.mActions.clear()
             this.mActions.addAll(actions)
@@ -121,8 +131,8 @@ class StreamDialog : DialogFragment() {
         fun build(): StreamDialog {
             return StreamDialog().apply {
                 infoItem = streamItem
-                title = mTitle
-                additionalDetail = mDetails
+                title = mTitle ?: streamItem.name
+                additionalDetail = mDetails ?: streamItem.uploaderName
                 actions = mActions
             }
         }

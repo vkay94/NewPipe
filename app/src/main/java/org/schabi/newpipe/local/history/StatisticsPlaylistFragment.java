@@ -416,7 +416,6 @@ public class StatisticsPlaylistFragment
                     StreamDialogEntry.share
             ));
         }
-        StreamDialogEntry.setEnabledEntries(entries);
 
         StreamDialogEntry.start_here_on_background.setCustomAction((fragment, infoItemDuplicate) ->
                 NavigationHelper
@@ -424,32 +423,15 @@ public class StatisticsPlaylistFragment
         StreamDialogEntry.delete.setCustomAction((fragment, infoItemDuplicate) ->
                 deleteEntry(Math.max(itemListAdapter.getItemsList().indexOf(item), 0)));
 
-
-        // TODO
-
-        final ArrayList<StreamDialogEntry> group = new ArrayList<>();
-        group.add(StreamDialogEntry.delete);
-        group.add(StreamDialogEntry.append_playlist);
-
         final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(infoItem)
                 .setTitle(infoItem.getName())
                 .setDetails(infoItem.getUploaderName())
-                .setActions(entries)
-                .addGroup(R.string.trending, group)
+                .addActions(entries)
+                .addGroup(R.string.trending,
+                        StreamDialogEntry.delete, StreamDialogEntry.append_playlist)
                 .addAction(StreamDialogEntry.delete);
 
         dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
-
-        /*
-        private val infoItem: StreamInfoItem,
-        private val activity: Activity,
-        private val actions: List<StreamDialogEntry>,
-        private val title: String,
-        private val additionalDetail: String? = null
-         */
-
-//        new InfoItemDialog(activity, infoItem, StreamDialogEntry.getCommands(context),
-//                (dialog, which) -> StreamDialogEntry.clickOn(which, this, infoItem)).show();
     }
 
     private void deleteEntry(final int index) {

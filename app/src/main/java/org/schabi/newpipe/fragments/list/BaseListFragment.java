@@ -27,13 +27,13 @@ import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamType;
 import org.schabi.newpipe.fragments.BaseStateFragment;
 import org.schabi.newpipe.fragments.OnScrollBelowItemsListener;
-import org.schabi.newpipe.info_list.InfoItemDialog;
 import org.schabi.newpipe.info_list.InfoListAdapter;
 import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.report.ErrorActivity;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.OnClickGesture;
 import org.schabi.newpipe.util.StateSaver;
+import org.schabi.newpipe.util.stream_dialog.StreamDialog;
 import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 import org.schabi.newpipe.views.SuperScrollLayoutManager;
 
@@ -359,10 +359,13 @@ public abstract class BaseListFragment<I, N> extends BaseStateFragment<I>
                     StreamDialogEntry.share
             ));
         }
-        StreamDialogEntry.setEnabledEntries(entries);
+//        StreamDialogEntry.setEnabledEntries(entries);
 
-        new InfoItemDialog(activity, item, StreamDialogEntry.getCommands(context),
-                (dialog, which) -> StreamDialogEntry.clickOn(which, this, item)).show();
+        final StreamDialog dialog = new StreamDialog.Builder(item)
+                .setActions(entries)
+                .build();
+
+        dialog.show(getChildFragmentManager(), "DIALOG");
     }
 
     /*//////////////////////////////////////////////////////////////////////////

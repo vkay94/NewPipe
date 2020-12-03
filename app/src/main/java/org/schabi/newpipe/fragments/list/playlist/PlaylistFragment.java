@@ -31,7 +31,6 @@ import org.schabi.newpipe.extractor.playlist.PlaylistInfo;
 import org.schabi.newpipe.extractor.stream.StreamInfoItem;
 import org.schabi.newpipe.extractor.stream.StreamType;
 import org.schabi.newpipe.fragments.list.BaseListInfoFragment;
-import org.schabi.newpipe.info_list.InfoItemDialog;
 import org.schabi.newpipe.local.playlist.RemotePlaylistManager;
 import org.schabi.newpipe.player.helper.PlayerHolder;
 import org.schabi.newpipe.player.playqueue.PlayQueue;
@@ -43,8 +42,9 @@ import org.schabi.newpipe.util.ImageDisplayConstants;
 import org.schabi.newpipe.util.Localization;
 import org.schabi.newpipe.util.NavigationHelper;
 import org.schabi.newpipe.util.ShareUtils;
-import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 import org.schabi.newpipe.util.ThemeHelper;
+import org.schabi.newpipe.util.stream_dialog.StreamDialog;
+import org.schabi.newpipe.util.stream_dialog.StreamDialogEntry;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -171,14 +171,15 @@ public class PlaylistFragment extends BaseListInfoFragment<PlaylistInfo> {
                     StreamDialogEntry.share
             ));
         }
-        StreamDialogEntry.setEnabledEntries(entries);
 
         StreamDialogEntry.start_here_on_background.setCustomAction((fragment, infoItem) ->
                 NavigationHelper.playOnBackgroundPlayer(context,
                         getPlayQueueStartingAt(infoItem), true));
 
-        new InfoItemDialog(activity, item, StreamDialogEntry.getCommands(context),
-                (dialog, which) -> StreamDialogEntry.clickOn(which, this, item)).show();
+        final StreamDialog.Builder dialogBuilder = new StreamDialog.Builder(item)
+                .addActions(entries);
+
+        dialogBuilder.build().show(getChildFragmentManager(), "DIALOG");
     }
 
     @Override

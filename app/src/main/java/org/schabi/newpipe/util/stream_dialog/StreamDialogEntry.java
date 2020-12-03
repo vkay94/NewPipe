@@ -1,7 +1,5 @@
 package org.schabi.newpipe.util.stream_dialog;
 
-import android.content.Context;
-
 import androidx.fragment.app.Fragment;
 
 import org.schabi.newpipe.R;
@@ -76,18 +74,25 @@ public enum StreamDialogEntry {
     share(R.string.share, (fragment, item) ->
             ShareUtils.shareUrl(fragment.getContext(), item.getName(), item.getUrl())),
 
-    groupEntry(R.string.tracks, new ArrayList<>());
+    /**
+     * <p>
+     *     Represents a group of actions.
+     * </p>
+     *
+     * You'll have to set the values (resource and actions list) after instantiating this entry
+     * because enums in Java don't allow constructor instantiating.
+     */
+    group(-1, new ArrayList<>());
 
     ///////////////
     // variables //
     ///////////////
 
-    private static StreamDialogEntry[] enabledEntries;
     private int resource;
     private final StreamDialogEntryAction defaultAction;
     private StreamDialogEntryAction customAction;
 
-    private List<StreamDialogEntry> subEntries = Collections.emptyList();
+    private List<StreamDialogEntry> subActions = Collections.emptyList();
 
     StreamDialogEntry(final int resource, final StreamDialogEntryAction defaultAction) {
         this.resource = resource;
@@ -96,9 +101,9 @@ public enum StreamDialogEntry {
     }
 
     // Pass it as is
-    StreamDialogEntry(final int resource, final ArrayList<StreamDialogEntry> subEntries) {
+    StreamDialogEntry(final int resource, final ArrayList<StreamDialogEntry> subActions) {
         this.resource = resource;
-        this.subEntries = subEntries;
+        this.subActions = subActions;
         this.defaultAction = null;
         this.customAction = null;
     }
@@ -111,16 +116,16 @@ public enum StreamDialogEntry {
         this.resource = resource;
     }
 
-    public void setSubEntries(final List<StreamDialogEntry> entries) {
-        this.subEntries = entries;
+    public void setSubActions(final List<StreamDialogEntry> actions) {
+        this.subActions = actions;
     }
 
-    public List<StreamDialogEntry> getSubEntries() {
-        return subEntries;
+    public List<StreamDialogEntry> getSubActions() {
+        return subActions;
     }
 
     public boolean hasSubEntries() {
-        return subEntries.size() > 0;
+        return subActions.size() > 0;
     }
 
     public StreamDialogEntryAction getAction() {
@@ -131,53 +136,8 @@ public enum StreamDialogEntry {
         }
     }
 
-    ///////////////////////////////////////////////////////
-    // non-static methods to initialize and edit entries //
-    ///////////////////////////////////////////////////////
-
-    public static void setEnabledEntries(final List<StreamDialogEntry> entries) {
-        setEnabledEntries(entries.toArray(new StreamDialogEntry[0]));
-    }
-
     /**
-     * To be called before using {@link #setCustomAction(StreamDialogEntryAction)}.
-     *
-     * @param entries the entries to be enabled
-     */
-    public static void setEnabledEntries(final StreamDialogEntry... entries) {
-        // cleanup from last time StreamDialogEntry was used
-        for (final StreamDialogEntry streamDialogEntry : values()) {
-            streamDialogEntry.customAction = null;
-        }
-
-        enabledEntries = entries;
-    }
-
-    public static String[] getCommands(final Context context) {
-        final String[] commands = new String[enabledEntries.length];
-        for (int i = 0; i != enabledEntries.length; ++i) {
-            commands[i] = context.getResources().getString(enabledEntries[i].resource);
-        }
-
-        return commands;
-    }
-
-
-    ////////////////////////////////////////////////
-    // static methods that act on enabled entries //
-    ////////////////////////////////////////////////
-
-    public static void clickOn(final int which, final Fragment fragment,
-                               final StreamInfoItem infoItem) {
-        if (enabledEntries[which].customAction == null) {
-            enabledEntries[which].defaultAction.onClick(fragment, infoItem);
-        } else {
-            enabledEntries[which].customAction.onClick(fragment, infoItem);
-        }
-    }
-
-    /**
-     * Can be used after {@link #setEnabledEntries(StreamDialogEntry...)} has been called.
+     * Sets a custom {@link StreamDialogEntryAction}.
      *
      * @param action the action to be set
      */
